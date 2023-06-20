@@ -22,6 +22,8 @@ case "$type" in
       dune exec --display=quiet test/errors/bin/pp.exe -- "$type" "$filename" "$@" |
       ocamlformat "$type" - >"$output" &&
       patdiff "$filename" "$output"
+
+   rm "$output"
    ;;
 *)
    printf "%s\n" "First argument must be either --impl or --intf" >&2
