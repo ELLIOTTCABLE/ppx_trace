@@ -1,4 +1,5 @@
 (test
  (name test_trace)
  (preprocess
-  (pps ppx_trace)))
+  (pps ppx_trace))
+ (libraries alcotest))

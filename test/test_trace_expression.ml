@@ -2,16 +2,18 @@
 
 module Trace_syntax = struct
   let span ~name f =
-     let open Printf in
-     printf "%s started\n" name ;
      let ret = f () in
-     printf "%s ended\n" name ;
-     ret
+     String.concat " " [ ret; "-"; name; "got wrapped btw" ]
 end
 
-let () =
-   let%span some_func abc _def = abc + 123 and widget _bleh = 354 in
-   print_endline @@ string_of_int (some_func 1 "ignored")
+let test_expression () =
+   let%span greet name = "Hi there, " ^ name in
+   Alcotest.(check string)
+     "got wrapped" "Hi there, ec - greet got wrapped btw" (greet "ec")
 
 
-let run () = ()
+let tests = Alcotest.[ ("expression", [ test_case "Expression" `Quick test_expression ]) ]
+
+let run () =
+   let open Alcotest in
+   run "Correct usage" tests
