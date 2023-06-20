@@ -1,0 +1,13 @@
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))
+
+(library
+ (name ppx_trace_expander)
+ (public_name ppx_trace.expander)
+ (preprocess
+  (pps ppxlib.metaquot))
+ (libraries ppxlib))
+
+;(preprocess no_preprocessing))

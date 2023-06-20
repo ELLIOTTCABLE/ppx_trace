@@ -1,0 +1,6 @@
+(library
+ (public_name ppx_trace)
+ (kind ppx_deriver)
+ (libraries ppxlib ppx_trace.expander)
+ (instrumentation
+  (backend bisect_ppx)))
