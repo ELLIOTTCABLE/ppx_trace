@@ -1,2 +1,5 @@
 _opam
 _build
+
+# output from ./pp.sh
+test/**/*.pp.ml
