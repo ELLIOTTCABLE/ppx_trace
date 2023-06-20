@@ -22,18 +22,27 @@ let trace_syntax ~modul : Longident.t =
    | Some id -> Ldot (Ldot (id.Location.txt, trace_syntax), trace_syntax)
 
 
+let __function__ ~loc () =
+   let loc = { loc with loc_ghost = true } in
+   evar ~loc "Stdlib.__FUNCTION__"
+
+
 let eoperator ~loc ~modul func =
    let lid : Longident.t = Ldot (trace_syntax ~modul, func) in
    pexp_ident ~loc (Located.mk ~loc lid)
 
 
-let qualified_span ~modul ?(name_label = "name") ~(name : expression) (body : expression)
-    =
+let qualified_span ~modul ?(name_label = "name") ?(fqmn_label = "full_name")
+    ~(name : expression) (body : expression) =
    let loc = { body.pexp_loc with loc_ghost = true } in
    let thunk = [%expr fun () -> [%e body]] in
    pexp_apply ~loc
      (eoperator ~loc ~modul "span")
-     [ (Labelled name_label, name); (Nolabel, thunk) ]
+     [
+       (Labelled name_label, name);
+       (Labelled fqmn_label, __function__ ~loc ());
+       (Nolabel, thunk);
+     ]
 
 
 let rec replace_nested_pexpr (expr : expression) (f : expression -> expression) =
