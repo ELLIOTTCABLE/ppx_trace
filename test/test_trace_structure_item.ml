@@ -8,14 +8,17 @@ module Trace_string_name = struct
   end
 end
 
-let test_expression_simple =
+let test_stri_simple =
    let open Trace_string_name in
    test_case "Simple function" `Quick (fun () ->
-       let%span greet name = "Hi there, " ^ name in
-       (check string) "got wrapped" "Hi there, ec - greet got wrapped btw" (greet "ec"))
+       let module Sth = struct
+         let%span greet name = "Hi there, " ^ name
+       end in
+       (check string) "got wrapped" "Hi there, ec - greet got wrapped btw"
+         (Sth.greet "ec"))
 
 
-let test_expression_multiple =
+let test_stri_multiple =
    test_case "Simple function" `Quick (fun () ->
        let open Trace_string_name in
        let%span greet2 first last = String.concat " " [ "Hi there,"; first; last ] in
@@ -33,13 +36,13 @@ end
 
 module Test_full_name = struct
   module Sth = struct
-    let test_expression_full_name =
+    let test_stri_full_name =
        let open Trace_string_full_name in
        test_case "Simple function (full name)" `Quick (fun () ->
            let%span greet name = "Hi there, " ^ name in
            (check string) "got wrapped"
              "Hi there, ec - \
-              Dune__exe__Test_trace_expression.Test_full_name.Sth.test_expression_full_name.(fun).greet \
+              Dune__exe__Test_trace_structure_item.Test_full_name.Sth.test_stri_full_name.(fun).greet \
               got wrapped btw"
              (greet "ec"))
   end
@@ -47,10 +50,6 @@ end
 
 let tests =
    [
-     ( "expression",
-       [
-         test_expression_simple;
-         test_expression_multiple;
-         Test_full_name.Sth.test_expression_full_name;
-       ] );
+     ( "structure item",
+       [ test_stri_simple; test_stri_multiple; Test_full_name.Sth.test_stri_full_name ] );
    ]
