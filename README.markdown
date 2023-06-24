@@ -60,6 +60,7 @@ Installation
 
    ```diff
     ; dune-project
+
     (package
      (name my_package)
      (depends
@@ -73,6 +74,7 @@ Installation
 
    ```diff
     # my_package.opam
+
     depends: [
       "ocaml" {>= "4.08"}
    +  "ppx_trace"
@@ -84,13 +86,13 @@ Installation
 
    ```diff
     ; src/dune
-    (test
 
+    (library
      (name my_package_lib)
    + (preprocess
    +  (pps ppx_trace))
-     (libraries alcotest))
-
+     (libraries ...))
+   ```
 
 [opam switch]: <https://opam.ocaml.org/doc/man/opam-switch.html> "Opam manaul: opam-switch"
 [dune-project]: <https://dune.readthedocs.io/en/stable/howto/opam-file-generation.html> "Dune manual: generating Opam files from dune-project"
@@ -148,6 +150,7 @@ The `Trace_syntax.span` function is expected arguments, providing different ways
 
 ```ocaml
 (* src/widget.ml *)
+
 module Trace_syntax = struct
   type code_path = { (* ... *) }
 
