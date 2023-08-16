@@ -19,7 +19,6 @@
    (>= 4.08))
   ppxlib
   (alcotest :with-test)
-  (ppx_bisect :with-test)
   (ocamlformat
    (and
     :with-test
