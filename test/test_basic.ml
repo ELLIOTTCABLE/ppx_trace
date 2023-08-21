@@ -8,7 +8,7 @@ module Trace_syntax = struct
      value : string option;
    }
 
-  let span ~name ~code_path:_ ~stdlib_name:_ f =
+  let span ~name ~code_path:_ ?stdlib_name:_ f =
      let ret = f () in
      String.concat " " [ ret; "-"; name; "got wrapped btw" ]
 end
