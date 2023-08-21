@@ -1,0 +1,52 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          # - macos-latest
+          # - windows-latest
+        ocaml-compiler:
+          - 4.08.x
+          - 4.09.x
+          - 4.10.x
+          - 4.11.x
+          - 4.12.x
+          - 4.13.x
+          - 4.14.x
+          - 5.0.x
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          dune-cache: true
+
+      - name: Pin ppxlib
+        run: opam pin add ppxlib git+https://github.com/ocaml-ppx/ppxlib#95baecb29a89478d3b48b8ea22cdcf032f45be17
+
+      - name: Install opam packages
+        run: opam install . --deps-only --yes --with-test
+
+      - name: Run build
+        run: opam exec -- dune build @all
+
+      - name: Run tests
+        run: opam exec -- dune test
