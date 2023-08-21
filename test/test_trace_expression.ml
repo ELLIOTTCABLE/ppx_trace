@@ -11,7 +11,7 @@ module Trace_unqualified_name = struct
        value : string option;
      }
 
-    let span ~name ~code_path:_ ~stdlib_name:_ f =
+    let span ~name ~code_path:_ ?stdlib_name:_ f =
        let ret = f () in
        String.concat " " [ ret; "-"; name; "got wrapped btw" ]
   end
@@ -48,7 +48,7 @@ module Trace_code_path = struct
        String.concat "." @@ names
 
 
-    let span ~name ~code_path ~stdlib_name:_ f =
+    let span ~name ~code_path ?stdlib_name:_ f =
        let ret = f () in
        String.concat " "
          [ ret; "-"; fully_qualified_path ~name code_path; "got wrapped btw" ]
@@ -79,7 +79,7 @@ module Trace_stdlib_name = struct
        value : string option;
      }
 
-    let span ~name:_ ~code_path:_ ~stdlib_name f =
+    let span ~name:_ ~code_path:_ ?(stdlib_name = "UNSUPPORTED") f =
        let ret = f () in
        String.concat " " [ ret; "-"; stdlib_name; "got wrapped btw" ]
   end
@@ -113,7 +113,7 @@ module Trace_with_submodule_specifier = struct
              value : string option;
            }
 
-          let span ~name ~code_path:_ ~stdlib_name:_ f =
+          let span ~name ~code_path:_ ?stdlib_name:_ f =
              let ret = f () in
              String.concat " "
                [ ret; "-"; name; "got wrapped by the correct function in A.Submodule" ]

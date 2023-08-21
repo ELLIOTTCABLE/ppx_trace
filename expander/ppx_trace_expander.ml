@@ -33,15 +33,20 @@ let ptyp_constr ~loc lid =
 let span_sig ~loc ~modul ?(name_label = "name") ?(code_path_label = "code_path")
     ?(stdlib_name_label = "stdlib_name") () =
    let loc = { loc with loc_ghost = true } in
-   let lstr label next =
-      ptyp_arrow (Labelled label) (ptyp_constr ~loc @@ Lident "string") ~loc next
+   let lstr label next ~optional =
+      ptyp_arrow
+        (if optional then Optional label else Labelled label)
+        (ptyp_constr ~loc @@ Lident "string")
+        ~loc next
    in
    let lcode_path label next =
       ptyp_arrow (Labelled label)
         (ptyp_constr ~loc @@ Ldot (modul, "code_path"))
         ~loc next
    in
-   lstr name_label @@ lcode_path code_path_label @@ lstr stdlib_name_label
+   lstr name_label ~optional:false
+   @@ lcode_path code_path_label
+   @@ lstr stdlib_name_label ~optional:true
    @@ [%type: (unit -> 'ret) -> 'ret]
 
 
@@ -55,6 +60,8 @@ let trace_syntax_sig ~loc =
 
 let internal_mod = "Ppx_trace_internal__Trace_syntax__"
 let internal_mod_sig = "PPX_TRACE_INTERNAL__TRACE_SYNTAX_SIG__"
+let major, minor = Scanf.sscanf Sys.ocaml_version "%d.%d" (fun x y -> (x, y))
+let gte412 = major >= 4 && minor >= 12
 
 let enclose_impl whole_loc : structure_item list * structure_item list =
    match whole_loc with
@@ -95,13 +102,22 @@ let qualified_span ~modul ?(name_label = "name") ?(code_path_label = "code_path"
         (pexp_ident ~loc @@ Located.mk ~loc @@ Ldot (modul, "span"))
         (span_sig ~loc ~modul ~name_label ~code_path_label ~stdlib_name_label ())
    in
-   pexp_apply ~loc constrained_ident
-     [
-       (Labelled name_label, name);
-       (Labelled code_path_label, code_path);
-       (Labelled stdlib_name_label, __function__ ~loc ());
-       (Nolabel, thunk);
-     ]
+   let expressions =
+      if gte412 then
+        [
+          (Labelled name_label, name);
+          (Labelled code_path_label, code_path);
+          (Optional stdlib_name_label, __function__ ~loc ());
+          (Nolabel, thunk);
+        ]
+      else
+        [
+          (Labelled name_label, name);
+          (Labelled code_path_label, code_path);
+          (Nolabel, thunk);
+        ]
+   in
+   pexp_apply ~loc constrained_ident expressions
 
 
 let rec replace_nested_pexpr (expr : expression) (f : expression -> expression) =
